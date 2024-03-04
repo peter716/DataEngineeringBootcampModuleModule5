@@ -1,0 +1,50 @@
+ 
+ URL="spark://Oluwadaras-MacBook-Air.local:7077"
+./sbin/start-slave.sh ${URL}
+
+# for newer versions of spark use that:
+URL="spark://Oluwadaras-MacBook-Air.local:7077"
+./sbin/start-worker.sh ${URL}
+
+ python spark_sql.py \
+     --input_green='data/pq/green/2020/*/' \
+     --input_yellow='data/pq/yellow/2020/*/' \
+     --output=data/report-2020
+
+URL="spark://localhost:7077"
+
+ spark-submit \
+     --master="${URL}" \
+       spark_sql.py \
+         --input_green='data/pq/green/2021/*/' \
+         --input_yellow='data/pq/yellow/2021/*/' \
+         --output=data/report-2021
+
+
+ --input_green=gs://data-engineering-zoomcamp-dara//pq/green/2021/*/ \
+--input_yellow=gs://data-engineering-zoomcamp-dara//pq/yellow/2021/*/ \
+ --output=gs://data-engineering-zoomcamp-dara/report-2021
+
+
+gsutil cp spark_sql_bigquery.py gs://data-engineering-zoomcamp-dara/code/spark_sql_bigquery.py
+
+
+gcloud dataproc jobs submit pyspark \
+    --cluster=cluster-6058\
+    --region=europe-west4 \
+    gs://data-engineering-zoomcamp-dara/code/spark_sql.py \
+    -- \
+        --input_green='gs://data-engineering-zoomcamp-dara//pq/green/2020/*/' \
+        --input_yellow='gs://data-engineering-zoomcamp-dara//pq/yellow/2020/*/' \
+        --output=gs://data-engineering-zoomcamp-dara/report-2020
+
+
+gcloud dataproc jobs submit pyspark \
+    --cluster=cluster-6058\
+    --region=europe-west4 \
+    --jars=gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar \
+    gs://data-engineering-zoomcamp-dara/code/spark_sql.py \
+    -- \
+        --input_green='gs://data-engineering-zoomcamp-dara//pq/green/2020/*/' \
+        --input_yellow='gs://data-engineering-zoomcamp-dara//pq/yellow/2020/*/' \
+        --output=gs://data-engineering-zoomcamp-dara/report-2020
